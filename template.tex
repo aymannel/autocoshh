@@ -1,0 +1,95 @@
+\documentclass{article}
+\usepackage{array}
+\usepackage{amsmath} 
+\usepackage{amssymb} 
+\usepackage{wasysym}
+\usepackage{makecell}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{longtable} 
+\usepackage[table]{xcolor}
+
+\hfuzz=1pt
+\geometry{legalpaper, margin=.5in}
+\setlength{\parindent}{0pt}
+\graphicspath{{./figures/}}
+
+\renewcommand{\arraystretch}{2.2}
+\newcommand{\header}[1]{\fontsize{10}{14}\selectfont\makecell{#1}}
+
+\newcolumntype{M}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{x}[1]{>{\raggedright\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{z}[1]{>{\raggedright\flushright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+
+\begin{document}
+
+\begin{center}
+\begin{tabular} {| z{0.12\textwidth} | m{0.36\textwidth}| z{0.123\textwidth} | m{0.3\textwidth} |}
+\hline
+Title:      \cellcolor[HTML]{f2f2f2}    & \multicolumn{3}{l|}{replace_title} \\\hline
+Name:       \cellcolor[HTML]{f2f2f2}    & replace_name          &
+Date:       \cellcolor[HTML]{f2f2f2}    & replace_date          \\\hline
+College:    \cellcolor[HTML]{f2f2f2}    & replace_college       &
+Year:       \cellcolor[HTML]{f2f2f2}    & replace_year          \\\hline
+
+\end{tabular}
+\end{center}
+
+\begin{center}
+\fontsize{7}{12}\selectfont
+\begin{longtable}{| M{0.14\textwidth} | x{0.07\textwidth} | M{0.25\textwidth} | M{0.1\textwidth} | m{0.32\textwidth} |}
+\hline\endfirsthead
+
+\rowcolor[HTML]{f2f2f2}
+\header{Substances/\\Equipment Used}      &
+\header{Mass/\\Volume}                    &
+\header{Hazards}                          &
+\header{Exposure\\Route}                  &
+\header{Control Measures}                 \\\hline
+
+replace_coshh
+
+\end{longtable}
+\end{center}
+
+\begin{center}
+\begin{tabular} {| m{0.326\textwidth} | x{0.1\textwidth}| m{0.5\textwidth} |}
+\hline
+\rowcolor[HTML]{f2f2f2}
+Specific Safety or Risk Implication     & 
+Y                                       &
+If Yes, Prevention Measures             \\\hline
+
+Fire or Explosion       & replace_firerisk 
+Thermal Runaway         & replace_thermrisk 
+Gas Release             & replace_gasrisk 
+Malodorous Substances   & replace_malodorrisk 
+Special Measures        & $\square$ & \\\hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+    \begin{tabular} {| m{0.11\textwidth} m{0.42\textwidth} m{0.31\textwidth} m{0.065\textwidth} |}
+\hline
+\rowcolor[HTML]{f2f2f2}
+\multicolumn{4}{|l|}{Waste Disposal}  \\\hline
+
+&   $\square$ \qquad Halogenated  &
+    $\square$ \qquad Aqueous      &\\
+&   $\square$ \qquad Hydrocarbon  &
+    $\square$ \qquad Named Waste  &\\
+&   $\square$ \qquad Contaminated Solid Waste &
+    $\square$ \qquad Silica/TLC               &\\\hline
+\end{tabular}
+\end{center}
+
+\begin{center}
+\begin{tabular} {| z{0.12\textwidth} | m{0.36\textwidth}| z{0.123\textwidth} | m{0.3\textwidth} |}
+\hline
+Approved By:    \cellcolor[HTML]{f2f2f2}    & &
+Date:           \cellcolor[HTML]{f2f2f2}    & \\\hline
+\end{tabular}
+\end{center}
+
+\end{document}
