@@ -1,6 +1,7 @@
 from core import FormData, PDFForm, CSVForm
 
-import subprocess
+import os
+import logging
 import pandas as pd
 import tkinter as tk
 from tkinter import *
@@ -8,6 +9,10 @@ from tkinter import ttk
 from datetime import date
 from random import shuffle
 
+#logging options
+logging.basicConfig(level=logging.INFO, format='(%(levelname)-s) %(asctime)s %(message)s', datefmt='%d-%m %H:%M:%S')
+
+chemcsv = pd.read_csv('reference.csv')
 padx = 5
 pady = 2
 
@@ -19,8 +24,6 @@ class Font():
         self.entry = ('Calibri', 14, 'bold')
         self.color_entry = '#464646'
 
-chemcsv = pd.read_csv('reference.csv')
-font = Font() #place me somewhere better no?
 
 class Variables():
     def __init__(self):
@@ -31,11 +34,15 @@ class Variables():
         self.radiovariable = tk.IntVar() #radiovariable shared between multiple radiobuttons thus do not specify value here
 
         #FormData variables
-        self.filename = tk.StringVar()
+        self.filename = tk.StringVar(value='New Form')
         self.name = tk.StringVar()
         self.college = tk.StringVar()
         self.title = tk.StringVar()
         self.year = tk.StringVar()
+
+
+font = Font() #place me somewhere better no?
+
 
 class AutoCoshh(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -69,93 +76,104 @@ class MainPage(ttk.Frame):
         ttk.Frame.__init__(self, parent)
 
         #header section ----------------------------------------
-        frame_header = ttk.Frame(self) #frame contains title allowing title to span top of window
-        frame_header.grid(column=1, row=1, columnspan=4, padx=10, pady=10, sticky=EW)
+        self.frame_header = ttk.Frame(self) #frame contains title allowing title to span top of window
+        self.frame_header.grid(column=1, row=1, columnspan=4, padx=10, pady=10, sticky=EW)
 
-        label_title = ttk.Label(frame_header, text='AutoCOSHH', font=font.title) #title label nested in header frame
-        label_title.pack(side = LEFT)
+        self.label_title = ttk.Label(self.frame_header, text='AutoCOSHH', font=font.title) #title label nested in header frame
+        self.label_title.pack(side = LEFT)
 
         #options section ----------------------------------------
-        label_options = ttk.Label(self, text='Options', font = font.subtitle) #options label nested in main frame
-        label_options.grid(column=1, columnspan=2, row=2, padx=padx, sticky=W)
+        self.label_options = ttk.Label(self, text='Options', font = font.subtitle) #options label nested in main frame
+        self.label_options.grid(column=1, columnspan=2, row=2, padx=padx, sticky=W)
 
-        frame_options = ttk.Frame(self) #frame contains options checkboxes, radiobuttons, etc
-        frame_options.grid(column=1, row=3, columnspan=4, pady=10, sticky=EW)
+        self.frame_options = ttk.Frame(self) #frame contains options checkboxes, radiobuttons, etc
+        self.frame_options.grid(column=1, row=3, columnspan=4, pady=10, sticky=EW)
 
-        checkbox_show_hazard_codes = ttk.Checkbutton(frame_options, text='Include Hazard Codes', variable=variables.show_hazard_codes)
-        checkbox_show_hazard_codes.pack(side = LEFT, padx=10)
+        self.checkbox_show_hazard_codes = ttk.Checkbutton(self.frame_options, text='Include Hazard Codes', variable=variables.show_hazard_codes)
+        self.checkbox_show_hazard_codes.pack(side = LEFT, padx=10)
 
-        checkbox_include_empty = ttk.Checkbutton(frame_options, text='Include Empty Checkboxes', variable=variables.include_empty)
-        checkbox_include_empty.pack(side = LEFT, padx=10)
+        self.checkbox_include_empty = ttk.Checkbutton(self.frame_options, text='Include Empty Checkboxes', variable=variables.include_empty)
+        self.checkbox_include_empty.pack(side = LEFT, padx=10)
 
-        radiobutton_pdf = ttk.Radiobutton(frame_options, text='PDF', variable=variables.radiovariable, value=0)
-        radiobutton_pdf.pack(side = LEFT, padx=10)
+        self.radiobutton_pdf = ttk.Radiobutton(self.frame_options, text='PDF', variable=variables.radiovariable, value=0)
+        self.radiobutton_pdf.pack(side = LEFT, padx=10)
 
-        radiobutton_csv = ttk.Radiobutton(frame_options, text='CSV', variable=variables.radiovariable, value=1) #currently does nothing? check me
-        radiobutton_csv.pack(side = LEFT, padx=10)
+        self.radiobutton_csv = ttk.Radiobutton(self.frame_options, text='CSV', variable=variables.radiovariable, value=1) #has this been implemented
+        self.radiobutton_csv.pack(side = LEFT, padx=10)
 
-        frame_filename = ttk.Frame(frame_options) #frame contains filename input box
-        frame_filename.pack(side=LEFT, padx=15)
+        self.frame_filename = ttk.Frame(self.frame_options) #frame contains filename input box
+        self.frame_filename.pack(side=LEFT, padx=15)
 
-        label_filename = ttk.Label(frame_filename, text='Document Name: ', font=font.entry, foreground=font.color_entry)
-        label_filename.pack(side=LEFT, anchor=E, pady=2)
+        self.label_filename = ttk.Label(self.frame_filename, text='Document Name: ', font=font.entry, foreground=font.color_entry)
+        self.label_filename.pack(side=LEFT, anchor=E, pady=2)
 
-        entry_filename = ttk.Entry(frame_filename, width=14, textvariable=variables.filename)
-        entry_filename.pack(side=RIGHT)
+        self.entry_filename = ttk.Entry(self.frame_filename, width=14, textvariable=variables.filename)
+        self.entry_filename.pack(side=RIGHT)
 
-        button_details = ttk.Button(frame_options, text='Edit Form Details', command=lambda: controller.show_frame(FormDetails))
-        button_details.pack(side=RIGHT, padx=10)
+        self.button_details = ttk.Button(self.frame_options, text='Edit Form Details', command=lambda: controller.show_frame(FormDetails))
+        self.button_details.pack(side=RIGHT, padx=10)
 
         #entry box section ----------------------------------------
         self.label_selected_chemicals = ttk.Label(self, text='Chemicals (0)', font = font.subtitle)
         self.label_selected_chemicals.grid(column=1, row=5, padx=padx, pady=pady, sticky=W)
 
-        self.chembox = Text(self, height=1, width=40, font = font.textbox)
-        self.chembox.grid(column=1, row=6, columnspan=2, padx=padx, pady=pady, stick=(E, W, N, S))
-        self.chembox.focus()
+        self.box_entry = tk.Text(self, height=1, width=40, font = font.textbox)
+        self.box_entry.grid(column=1, row=6, columnspan=2, padx=padx, pady=pady, stick=(E, W, N, S))
+        self.box_entry.focus()
 
         #selection box section ----------------------------------------
         selection_box_title = 'Recognised Chemicals (' + str(len(chemcsv.columns)) +')'
-        label_selection_title = ttk.Label(self, text = selection_box_title, font = font.subtitle)
-        label_selection_title.grid(column=3, row=5, columnspan=2, padx=padx, pady=pady, sticky=EW)
+        self.label_selection_title = ttk.Label(self, text=selection_box_title, font = font.subtitle)
+        self.label_selection_title.grid(column=3, row=5, columnspan=2, padx=padx, pady=pady, sticky=EW)
 
         list_chemicals = list(chemcsv.columns.sort_values())
-        self.selbox = Listbox(self, selectmode = MULTIPLE, height = 18, width = 80, font = font.textbox)
-        [self.selbox.insert(list_chemicals.index(chem), chem) for chem in list_chemicals]
-        self.selbox.grid(column=3, row=6, columnspan=2, padx=padx, pady=pady)
+        self.box_selection = Listbox(self, selectmode = MULTIPLE, height = 18, width = 80, font = font.textbox)
+        [self.box_selection.insert(list_chemicals.index(chem), chem) for chem in list_chemicals]
+        self.box_selection.grid(column=3, row=6, columnspan=2, padx=padx, pady=pady)
 
-        #BOTTOM BAR
-        bottombar_frame = ttk.Frame(self)
-        bottombar_frame.grid(column=1, row=7, columnspan=4, padx=padx, pady=pady, sticky=EW)
+        #footer section -----------------------------------------------
+        self.frame_footer = ttk.Frame(self)
+        self.frame_footer.grid(column=1, row=7, columnspan=4, padx=padx, pady=pady, sticky=EW)
 
-        opendatabase_button = ttk.Button(bottombar_frame, text='Open Database', command=lambda: self.open_database())
-        opendatabase_button.pack(side = LEFT)
+        self.button_open_database = ttk.Button(self.frame_footer, text='Open Database', command=lambda: os.system('open reference.csv'))
+        self.button_open_database.pack(side = LEFT)
 
-        rand_order_button = ttk.Button(bottombar_frame, text='Randomise Order', command=lambda: self.rand_order())
-        rand_order_button.pack(side = LEFT)
+        self.button_randomise_order = ttk.Button(self.frame_footer, text='Randomise Order', command=lambda: self.rand_order())
+        self.button_randomise_order.pack(side = LEFT)
 
-        submit_button = ttk.Button(bottombar_frame, text='Compile', command=lambda: self.compile_form(variables))
-        submit_button.pack(side = RIGHT)
+        self.button_submit = ttk.Button(self.frame_footer, text='Compile', command=lambda: self.compile_form(variables))
+        self.button_submit.pack(side = RIGHT)
 
-        clear_button = ttk.Button(bottombar_frame, text='Clear Selection', command=lambda: self.clear_selection())
-        clear_button.pack(side = RIGHT)
+        self.button_clear = ttk.Button(self.frame_footer, text='Clear Selection', command=lambda: self.box_entry.delete('1.0', 'end'))
+        self.button_clear.pack(side = RIGHT)
 
-        add_button = ttk.Button(bottombar_frame, text='Add Selection', command=lambda: self.add_selection())
-        add_button.pack(side = RIGHT)
+        self.button_add_selection = ttk.Button(self.frame_footer, text='Add Selection', command=lambda: self.add_selection())
+        self.button_add_selection.pack(side = RIGHT)
 
+    def rand_order(self):
+        contents = list()
+        input = self.box_entry.get('1.0','end-1c')
+        [contents.append(line) for line in input.lower().splitlines()]
+
+        shuffle(contents)
+        self.box_entry.delete('1.0', 'end')
+        self.box_entry.insert('end', '\n'.join(contents))
+
+    def add_selection(self):
+        chemindex = self.box_selection.curselection()
+        list_chemicals = list()
+        [list_chemicals.append(self.box_selection.get(chem)) for chem in chemindex]
+        self.box_entry.insert('end', '\n'.join(list_chemicals) + '\n')
+        self.label_selected_chemicals.config(text = 'Chemicals (' + str(len(self.box_entry.get('1.0','end-1c').splitlines())) + ')')
+        list_chemical_string = ', '.join(list_chemicals)
+        logging.info(f'Following chemicals added: {list_chemical_string}')
 
     def compile_form(self, variables):
-        input = self.chembox.get('1.0','end-1c')
-        #[True if var == 1 else False for var in variables.show_hazard_codes]
-        #[True if var == 1 else False for var in variables.include_empty]
-        config = {'hazcode': True, 'checkboxes': True}
+        input = self.box_entry.get('1.0','end-1c')
+        config = {'hazcode': bool(variables.show_hazard_codes.get()), 'checkboxes': bool(variables.include_empty.get())}
 
+        #update displayed number of selected chemicals
         self.label_selected_chemicals.config(text = 'Chemicals (' + str(len(input.splitlines())) + ')')
-
-        if variables.filename.get() != '':
-            filename = variables.filename.get()
-        else:
-            filename = 'New COSHH Form'
 
         self.form_data = FormData(input)
         self.form_data.cred.update({'name':variables.name.get(),
@@ -163,33 +181,9 @@ class MainPage(ttk.Frame):
                                     'date':variables.date,
                                     'year':variables.year.get(),
                                     'college':variables.college.get(),
-                                    'filename':filename})
+                                    'filename':variables.filename.get()})
+
         self.form = PDFForm(self.form_data, config)
-
-    def rand_order(self):
-        contents = list()
-        input = self.chembox.get('1.0','end-1c')
-        [contents.append(line) for line in input.lower().splitlines()]
-
-        shuffle(contents)
-        self.chembox.delete('1.0', 'end')
-        self.chembox.insert('end', '\n'.join(contents))
-
-    def add_selection(self):
-        chemindex = self.selbox.curselection()
-        list_chemicals = list()
-        [list_chemicals.append(self.selbox.get(chem)) for chem in chemindex]
-        self.chembox.insert('end', '\n'.join(list_chemicals) + '\n')
-        self.label_selected_chemicals.config(text = 'Chemicals (' + str(len(self.chembox.get('1.0','end-1c').splitlines())) + ')')
-        print('\n'.join(list_chemicals))
-
-    def clear_selection(self):
-        self.selbox.selection_clear(0, END)
-
-    def open_database(self):
-        bashcommand = 'open -a Microsoft\ Excel reference.csv'
-        output = subprocess.check_output(['bash','-c', bashcommand])
-
 
 class FormDetails(ttk.Frame):
     def __init__(self, parent, controller, variables):
@@ -256,10 +250,10 @@ class FormDetails(ttk.Frame):
         largescheme_radiobutton.pack(side = LEFT, padx=10)
 
         #BOTTOM BAR
-        bottombar_frame = ttk.Frame(self)
-        bottombar_frame.grid(column=1, row=7, columnspan=4, padx=padx, pady=pady, sticky=EW)
+        frame_footer = ttk.Frame(self)
+        frame_footer.grid(column=1, row=7, columnspan=4, padx=padx, pady=pady, sticky=EW)
 
-        return_button = ttk.Button(bottombar_frame, text='Return', command=lambda: controller.show_frame(MainPage))
+        return_button = ttk.Button(frame_footer, text='Return', command=lambda: controller.show_frame(MainPage))
         return_button.pack(side = RIGHT)
 
 app = AutoCoshh()

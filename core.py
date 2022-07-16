@@ -252,8 +252,7 @@ class PDFForm:
                 line = line.replace('replace_malodorrisk', FormData.specific_risk[3])
                 print (line, end='')
 
-        #temporarily pause pdf generation until you can figure out why its creating a PDF on start up
-#        os.system(f"cd forms && latexmk -pdf '{tex_path}' && latexmk -c && open '{pdf_path}'")
+        os.system(f'cd forms && latexmk -pdf "{tex_path}" && latexmk -c && open "{pdf_path}"')
 
 
 class CSVForm:
@@ -381,8 +380,9 @@ Tin
 Toluene
 p-Toluenesulfonic Acid Monohydrate"""
 
+"""
 config = {'hazcode':True, 'checkboxes':True}
-
 AymanData = FormData(input1)
 AymanData.cred.update({'name':'Ayman', 'title':'C118', 'year':'Second', 'college':'St. John\'s', 'filename':'some'})
 AymanPDF = PDFForm(AymanData, config)
+"""
