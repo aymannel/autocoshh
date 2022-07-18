@@ -27,29 +27,22 @@ class Font():
 
 class Variables():
     def __init__(self):
-        #MainPage variables
         self.date = str(date.today().strftime('%d %B %Y'))
-        self.show_hazard_codes = tk.IntVar(value=True)
-        self.include_empty = tk.IntVar(value=True)
-        self.radiovariable = tk.IntVar() #radiovariable shared between multiple radiobuttons thus do not specify value here
-
-        #FormData variables
-        self.filename = tk.StringVar(value='New Form')
-        self.name = tk.StringVar()
-        self.college = tk.StringVar()
-        self.title = tk.StringVar()
-        self.year = tk.StringVar()
+        self.filename = ''
+        self.name = ''
+        self.year = ''
+        self.college = ''
+        self.title = ''
 
 
-font = Font() #place me somewhere better no?
+font = Font()
+variables = Variables()
 
 
 class AutoCoshh(tk.Tk):
     def __init__(self, *args, **kwargs):
         tk.Tk.__init__(self, *args, **kwargs)
         tk.Tk.wm_title(self, 'AutoCOSHH v4')
-
-        variables = Variables()
 
         #container setup
         container = ttk.Frame(self, padding='6 3 6 6')
@@ -74,6 +67,12 @@ class AutoCoshh(tk.Tk):
 class MainPage(ttk.Frame):
     def __init__(self, parent, controller, variables):
         ttk.Frame.__init__(self, parent)
+        
+        #initialise tk variables
+        self.filename = tk.StringVar(value='New Form')
+        self.show_hazard_codes = tk.IntVar(value=True)
+        self.include_empty = tk.IntVar(value=True)
+        self.radiovariable = tk.IntVar()
 
         #header section ----------------------------------------
         self.frame_header = ttk.Frame(self) #frame contains title allowing title to span top of window
@@ -89,16 +88,16 @@ class MainPage(ttk.Frame):
         self.frame_options = ttk.Frame(self) #frame contains options checkboxes, radiobuttons, etc
         self.frame_options.grid(column=1, row=3, columnspan=4, pady=10, sticky=EW)
 
-        self.checkbox_show_hazard_codes = ttk.Checkbutton(self.frame_options, text='Include Hazard Codes', variable=variables.show_hazard_codes)
+        self.checkbox_show_hazard_codes = ttk.Checkbutton(self.frame_options, text='Include Hazard Codes', variable=self.show_hazard_codes)
         self.checkbox_show_hazard_codes.pack(side = LEFT, padx=10)
 
-        self.checkbox_include_empty = ttk.Checkbutton(self.frame_options, text='Include Empty Checkboxes', variable=variables.include_empty)
+        self.checkbox_include_empty = ttk.Checkbutton(self.frame_options, text='Include Empty Checkboxes', variable=self.include_empty)
         self.checkbox_include_empty.pack(side = LEFT, padx=10)
 
-        self.radiobutton_pdf = ttk.Radiobutton(self.frame_options, text='PDF', variable=variables.radiovariable, value=0)
+        self.radiobutton_pdf = ttk.Radiobutton(self.frame_options, text='PDF', variable=self.radiovariable, value=0)
         self.radiobutton_pdf.pack(side = LEFT, padx=10)
 
-        self.radiobutton_csv = ttk.Radiobutton(self.frame_options, text='CSV', variable=variables.radiovariable, value=1) #has this been implemented
+        self.radiobutton_csv = ttk.Radiobutton(self.frame_options, text='CSV', variable=self.radiovariable, value=1) #has this been implemented
         self.radiobutton_csv.pack(side = LEFT, padx=10)
 
         self.frame_filename = ttk.Frame(self.frame_options) #frame contains filename input box
@@ -107,7 +106,7 @@ class MainPage(ttk.Frame):
         self.label_filename = ttk.Label(self.frame_filename, text='Document Name: ', font=font.entry, foreground=font.color_entry)
         self.label_filename.pack(side=LEFT, anchor=E, pady=2)
 
-        self.entry_filename = ttk.Entry(self.frame_filename, width=14, textvariable=variables.filename)
+        self.entry_filename = ttk.Entry(self.frame_filename, width=14, textvariable=self.filename)
         self.entry_filename.pack(side=RIGHT)
 
         self.button_details = ttk.Button(self.frame_options, text='Edit Form Details', command=lambda: controller.show_frame(FormDetails))
@@ -141,7 +140,7 @@ class MainPage(ttk.Frame):
         self.button_randomise_order = ttk.Button(self.frame_footer, text='Randomise Order', command=lambda: self.rand_order())
         self.button_randomise_order.pack(side = LEFT)
 
-        self.button_submit = ttk.Button(self.frame_footer, text='Compile', command=lambda: self.compile_form(variables))
+        self.button_submit = ttk.Button(self.frame_footer, text='Compile', command=lambda: self.compile_form())
         self.button_submit.pack(side = RIGHT)
 
         self.button_clear = ttk.Button(self.frame_footer, text='Clear Selection', command=lambda: self.box_entry.delete('1.0', 'end'))
@@ -150,44 +149,65 @@ class MainPage(ttk.Frame):
         self.button_add_selection = ttk.Button(self.frame_footer, text='Add Selection', command=lambda: self.add_selection())
         self.button_add_selection.pack(side = RIGHT)
 
-    def rand_order(self):
-        contents = list()
-        input = self.box_entry.get('1.0','end-1c')
-        [contents.append(line) for line in input.lower().splitlines()]
+    def get_input(self):
+        variables.selected_chemicals = self.box_entry.get('1.0', 'end-1c').lower().splitlines()
 
-        shuffle(contents)
+    def rand_order(self):
+        self.get_input()
+        
+        shuffle(variables.selected_chemicals)
         self.box_entry.delete('1.0', 'end')
-        self.box_entry.insert('end', '\n'.join(contents))
+        self.box_entry.insert('end', '\n'.join(variables.selected_chemicals))
 
     def add_selection(self):
-        chemindex = self.box_selection.curselection()
-        list_chemicals = list()
-        [list_chemicals.append(self.box_selection.get(chem)) for chem in chemindex]
-        self.box_entry.insert('end', '\n'.join(list_chemicals) + '\n')
-        self.label_selected_chemicals.config(text = 'Chemicals (' + str(len(self.box_entry.get('1.0','end-1c').splitlines())) + ')')
-        list_chemical_string = ', '.join(list_chemicals)
-        logging.info(f'Following chemicals added: {list_chemical_string}')
+        cursor_selection = []
 
-    def compile_form(self, variables):
+        for chemical in self.box_selection.curselection():
+            cursor_selection.append(self.box_selection.get(chemical))
+        
+        self.box_entry.insert('end', '\n'.join(cursor_selection) + '\n')
+        
+        self.get_input()
+        self.label_selected_chemicals.config(text='Chemicals (' + str(len(variables.selected_chemicals)) + ')')
+
+        self.get_input()
+        logging.info(f'Following chemicals added: {variables.selected_chemicals}')
+
+    def update_variables(self):
+        variables.filename = self.filename.get()
+        #the following must be updated in the FormDetails class
+#        variables.title
+#        variables.name
+#        variables.year
+#        variables.college      
+
+    def compile_form(self):
         input = self.box_entry.get('1.0','end-1c')
-        config = {'hazcode': bool(variables.show_hazard_codes.get()), 'checkboxes': bool(variables.include_empty.get())}
+        config = {'hazcode': bool(self.show_hazard_codes.get()), 'checkboxes': bool(self.include_empty.get())}
 
         #update displayed number of selected chemicals
         self.label_selected_chemicals.config(text = 'Chemicals (' + str(len(input.splitlines())) + ')')
 
-        self.form_data = FormData(input)
-        self.form_data.cred.update({'name':variables.name.get(),
-                                    'title':variables.title.get(),
+        self.update_variables()
+        form_data = FormData(input)
+        form_data.cred.update({'name':variables.name,
+                                    'title':variables.title,
                                     'date':variables.date,
-                                    'year':variables.year.get(),
-                                    'college':variables.college.get(),
-                                    'filename':variables.filename.get()})
+                                    'year':variables.year,
+                                    'college':variables.college,
+                                    'filename':variables.filename})
 
-        self.form = PDFForm(self.form_data, config)
+        self.form = PDFForm(form_data, config)
 
 class FormDetails(ttk.Frame):
     def __init__(self, parent, controller, variables):
         ttk.Frame.__init__(self, parent)
+
+        #initialise tk variables
+        self.name = tk.StringVar()
+        self.college = tk.StringVar()
+        self.title = tk.StringVar()
+        self.year = tk.StringVar()        
 
         #TITLE & HEADER
         frame_header = ttk.Frame(self)
@@ -221,16 +241,16 @@ class FormDetails(ttk.Frame):
         entry_frame = ttk.Frame(frame_form_details)
         entry_frame.pack(side=LEFT)
 
-        name_entry = ttk.Entry(entry_frame, width=16, textvariable=variables.name)
+        name_entry = ttk.Entry(entry_frame, width=16, textvariable=self.name)
         name_entry.pack(side=TOP)
 
-        college_entry = ttk.Entry(entry_frame, width=16, textvariable=variables.college)
+        college_entry = ttk.Entry(entry_frame, width=16, textvariable=self.college)
         college_entry.pack(side=TOP)
 
-        title_entry = ttk.Entry(entry_frame, width=16, textvariable=variables.title)
+        title_entry = ttk.Entry(entry_frame, width=16, textvariable=self.title)
         title_entry.pack(side=TOP)
 
-        year_entry = ttk.Entry(entry_frame, width=16, textvariable=variables.year)
+        year_entry = ttk.Entry(entry_frame, width=16, textvariable=self.year)
         year_entry.pack(side=TOP)
 
         scheme_label = ttk.Label(self, text='Reaction Scheme Size', font=font.subtitle)
@@ -255,6 +275,12 @@ class FormDetails(ttk.Frame):
 
         return_button = ttk.Button(frame_footer, text='Return', command=lambda: controller.show_frame(MainPage))
         return_button.pack(side = RIGHT)
+
+    def update_variables(self):
+        variables.name = self.name.get()
+        variables.title = self.title.get()
+        variables.year = self.year.get()
+        variables.college = self.college.get()
 
 app = AutoCoshh()
 app.mainloop()
