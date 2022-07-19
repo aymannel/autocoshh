@@ -13,7 +13,3 @@ As a Chemistry undergraduate at Oxford, time is already at a premium. AutoCOSHH 
 </ul>
 
 <hr>
-
-
-<h3>PURPOSE</h3>
-
