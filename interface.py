@@ -100,8 +100,12 @@ class AutoCoshh(tk.Tk):
         #update displayed number of selected chemicals
         self.mainpage.label_selected_chemicals.config(text = 'Chemicals (' + str(len(input.splitlines())) + ')')
 
+        #retrieve entry data and perform logic
+        self.get_input()
         self.update_variables()
-        form_data = FormData(input, self.vars)
+        form_data = FormData(self.vars)
+
+        #generate PDF document
         self.form = PDFForm(form_data, config)
 
 class MainPage(ttk.Frame):
