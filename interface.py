@@ -28,15 +28,14 @@ class Font():
 class Variables():
     def __init__(self):
         self.date = str(date.today().strftime('%d %B %Y'))
-        self.filename = ''
-        self.name = ''
-        self.year = ''
-        self.college = ''
-        self.title = ''
+        self.filename = str()
+        self.name = str()
+        self.year = str()
+        self.college = str()
+        self.title = str()
 
-
-font = Font()
 variables = Variables()
+font = Font()
 
 
 class AutoCoshh(tk.Tk):
@@ -44,32 +43,87 @@ class AutoCoshh(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs)
         tk.Tk.wm_title(self, 'AutoCOSHH v4')
 
-        #container setup
-        container = ttk.Frame(self, padding='6 3 6 6')
-        container.grid(column=0, row=0, sticky=NSEW)
-        container.rowconfigure(0, weight=1)
-        container.columnconfigure(0, weight=1)
+        #instantiate variables object
+        self.vars = Variables()
 
-        self.frames = dict()
+        #instantiate parent container
+        parent_container = ttk.Frame(self, padding='6 3 6 6')
+        parent_container.grid(column=0, row=0, sticky=NSEW)
+        parent_container.rowconfigure(0, weight=1)
+        parent_container.columnconfigure(0, weight=1)
 
-        for page in (MainPage, FormDetails):
-            frame = page(container, self, variables)
-            self.frames[page] = frame
-            frame.grid(row=0, column=0, sticky=NSEW)
+        #instantiate tk frame objects (navigable pages)
+        self.mainpage = MainPage(parent_container, self, vars)
+        self.formdetails = FormDetails(parent_container, self, vars)
+        
+        self.mainpage.grid(row=0, column=0, sticky=NSEW)
+        self.formdetails.grid(row=0, column=0, sticky=NSEW)
 
+        self.frames = { MainPage: self.mainpage, FormDetails: self.formdetails }
         self.show_frame(MainPage)
 
     def show_frame(self, controller):
         frame = self.frames[controller]
         frame.tkraise()
 
+    def get_input(self):
+        variables.selected_chemicals = self.mainpage.box_entry.get('1.0', 'end-1c').lower().splitlines()
+
+    def rand_order(self):
+        self.get_input()
+        
+        shuffle(variables.selected_chemicals)
+        self.mainpage.box_entry.delete('1.0', 'end')
+        self.mainpage.box_entry.insert('end', '\n'.join(variables.selected_chemicals))
+
+    def add_selection(self):
+        cursor_selection = []
+
+        for chemical in self.mainpage.box_selection.curselection():
+            cursor_selection.append(self.mainpage.box_selection.get(chemical))
+        
+        self.mainpage.box_entry.insert('end', '\n'.join(cursor_selection) + '\n')
+        
+        self.get_input()
+        self.mainpage.label_selected_chemicals.config(text='Chemicals (' + str(len(variables.selected_chemicals)) + ')')
+
+        logging.info(f'Following chemicals added: {variables.selected_chemicals}')
+
+    def compile_form(self):
+        input = self.mainpage.box_entry.get('1.0','end-1c')
+        config = {'hazcode': bool(self.mainpage.show_hazard_codes.get()), 'checkboxes': bool(self.mainpage.include_empty.get())}
+
+        #update displayed number of selected chemicals
+        self.mainpage.label_selected_chemicals.config(text = 'Chemicals (' + str(len(input.splitlines())) + ')')
+
+        self.update_variables()
+        form_data = FormData(input)
+        form_data.cred.update({ 'name':variables.name,
+                                'title':variables.title,
+                                'date':variables.date,
+                                'year':variables.year,
+                                'college':variables.college,
+                                'filename':variables.filename })
+
+        self.form = PDFForm(form_data, config)
+
+    def update_variables(self):
+        variables.filename = self.mainpage.filename.get()
+        variables.name = self.formdetails.name.get()
+        variables.title = self.formdetails.title.get()
+        variables.year = self.formdetails.year.get()
+        variables.college = self.formdetails.college.get()
+
 
 class MainPage(ttk.Frame):
-    def __init__(self, parent, controller, variables):
+    def __init__(self, parent, controller, vars):
         ttk.Frame.__init__(self, parent)
+
+        #am i cloning the controller object here? is it the same instance or a new one? is the instance shared between MainPage and FormDetails
+        self.controller = controller
         
-        #initialise tk variables
-        self.filename = tk.StringVar(value='New Form')
+        #instantiate tk variables
+        self.filename = tk.StringVar(value='New Document')
         self.show_hazard_codes = tk.IntVar(value=True)
         self.include_empty = tk.IntVar(value=True)
         self.radiovariable = tk.IntVar()
@@ -109,7 +163,7 @@ class MainPage(ttk.Frame):
         self.entry_filename = ttk.Entry(self.frame_filename, width=14, textvariable=self.filename)
         self.entry_filename.pack(side=RIGHT)
 
-        self.button_details = ttk.Button(self.frame_options, text='Edit Form Details', command=lambda: controller.show_frame(FormDetails))
+        self.button_details = ttk.Button(self.frame_options, text='Edit Form Details', command=lambda: self.controller.show_frame(FormDetails))
         self.button_details.pack(side=RIGHT, padx=10)
 
         #entry box section ----------------------------------------
@@ -137,73 +191,25 @@ class MainPage(ttk.Frame):
         self.button_open_database = ttk.Button(self.frame_footer, text='Open Database', command=lambda: os.system('open reference.csv'))
         self.button_open_database.pack(side = LEFT)
 
-        self.button_randomise_order = ttk.Button(self.frame_footer, text='Randomise Order', command=lambda: self.rand_order())
+        self.button_randomise_order = ttk.Button(self.frame_footer, text='Randomise Order', command=lambda: self.controller.rand_order())
         self.button_randomise_order.pack(side = LEFT)
 
-        self.button_submit = ttk.Button(self.frame_footer, text='Compile', command=lambda: self.compile_form())
+        self.button_submit = ttk.Button(self.frame_footer, text='Compile', command=lambda: self.controller.compile_form())
         self.button_submit.pack(side = RIGHT)
 
         self.button_clear = ttk.Button(self.frame_footer, text='Clear Selection', command=lambda: self.box_entry.delete('1.0', 'end'))
         self.button_clear.pack(side = RIGHT)
 
-        self.button_add_selection = ttk.Button(self.frame_footer, text='Add Selection', command=lambda: self.add_selection())
+        self.button_add_selection = ttk.Button(self.frame_footer, text='Add Selection', command=lambda: self.controller.add_selection())
         self.button_add_selection.pack(side = RIGHT)
 
-    def get_input(self):
-        variables.selected_chemicals = self.box_entry.get('1.0', 'end-1c').lower().splitlines()
-
-    def rand_order(self):
-        self.get_input()
-        
-        shuffle(variables.selected_chemicals)
-        self.box_entry.delete('1.0', 'end')
-        self.box_entry.insert('end', '\n'.join(variables.selected_chemicals))
-
-    def add_selection(self):
-        cursor_selection = []
-
-        for chemical in self.box_selection.curselection():
-            cursor_selection.append(self.box_selection.get(chemical))
-        
-        self.box_entry.insert('end', '\n'.join(cursor_selection) + '\n')
-        
-        self.get_input()
-        self.label_selected_chemicals.config(text='Chemicals (' + str(len(variables.selected_chemicals)) + ')')
-
-        self.get_input()
-        logging.info(f'Following chemicals added: {variables.selected_chemicals}')
-
-    def update_variables(self):
-        variables.filename = self.filename.get()
-        #the following must be updated in the FormDetails class
-#        variables.title
-#        variables.name
-#        variables.year
-#        variables.college      
-
-    def compile_form(self):
-        input = self.box_entry.get('1.0','end-1c')
-        config = {'hazcode': bool(self.show_hazard_codes.get()), 'checkboxes': bool(self.include_empty.get())}
-
-        #update displayed number of selected chemicals
-        self.label_selected_chemicals.config(text = 'Chemicals (' + str(len(input.splitlines())) + ')')
-
-        self.update_variables()
-        form_data = FormData(input)
-        form_data.cred.update({'name':variables.name,
-                                    'title':variables.title,
-                                    'date':variables.date,
-                                    'year':variables.year,
-                                    'college':variables.college,
-                                    'filename':variables.filename})
-
-        self.form = PDFForm(form_data, config)
-
 class FormDetails(ttk.Frame):
-    def __init__(self, parent, controller, variables):
+    def __init__(self, parent, controller, vars):
         ttk.Frame.__init__(self, parent)
 
-        #initialise tk variables
+        self.controller = controller
+
+        #instantiate tk variables
         self.name = tk.StringVar()
         self.college = tk.StringVar()
         self.title = tk.StringVar()
@@ -273,14 +279,8 @@ class FormDetails(ttk.Frame):
         frame_footer = ttk.Frame(self)
         frame_footer.grid(column=1, row=7, columnspan=4, padx=padx, pady=pady, sticky=EW)
 
-        return_button = ttk.Button(frame_footer, text='Return', command=lambda: controller.show_frame(MainPage))
+        return_button = ttk.Button(frame_footer, text='Return', command=lambda: self.controller.show_frame(MainPage))
         return_button.pack(side = RIGHT)
-
-    def update_variables(self):
-        variables.name = self.name.get()
-        variables.title = self.title.get()
-        variables.year = self.year.get()
-        variables.college = self.college.get()
 
 app = AutoCoshh()
 app.mainloop()
