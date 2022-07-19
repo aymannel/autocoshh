@@ -7,10 +7,11 @@ As a Chemistry undergraduate at Oxford, time is at a premium. Given a list of ch
 <h3>FEATURES</h3>
 <ul> 
     <li>Generate hundred-page long COSHH forms in seconds</li>
-    <li>Randomise display order of chemicals</li>
     <li>Specify mass, concentration, volume and other parameters in brackets</li>
     <li>Automatates 'Specific Safety or Risk Implication' section</li>
     <li>Many commonly used solvents and chemicals already specified</li>
+    <li>Add any chemical and its associated hazard codes to `reference.csv` if not present<li>
+    <li>Randomise display order of chemicals</li>
 </ul>
 
 </br>
