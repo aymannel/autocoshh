@@ -14,6 +14,6 @@ As a Chemistry undergraduate at Oxford, time is at a premium. Given a list of ch
 
 <h3>DEMONSTRATION</h3>
 
-![projectimage](https://github.com/aymannel/autocoshh/blob/master/img/autocoshh.png?raw=true)
+![projectimage](https://github.com/aymannel/autocoshh/blob/master/img/autocoshh.jpg?raw=true)
 
 <hr>
