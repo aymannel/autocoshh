@@ -34,9 +34,6 @@ class Variables():
         self.college = str()
         self.title = str()
 
-variables = Variables()
-font = Font()
-
 
 class AutoCoshh(tk.Tk):
     def __init__(self, *args, **kwargs):
@@ -67,14 +64,14 @@ class AutoCoshh(tk.Tk):
         frame.tkraise()
 
     def get_input(self):
-        variables.selected_chemicals = self.mainpage.box_entry.get('1.0', 'end-1c').lower().splitlines()
+        self.vars.selected_chemicals = self.mainpage.box_entry.get('1.0', 'end-1c').lower().splitlines()
 
     def rand_order(self):
         self.get_input()
         
-        shuffle(variables.selected_chemicals)
+        shuffle(self.vars.selected_chemicals)
         self.mainpage.box_entry.delete('1.0', 'end')
-        self.mainpage.box_entry.insert('end', '\n'.join(variables.selected_chemicals))
+        self.mainpage.box_entry.insert('end', '\n'.join(self.vars.selected_chemicals))
 
     def add_selection(self):
         cursor_selection = []
@@ -85,9 +82,16 @@ class AutoCoshh(tk.Tk):
         self.mainpage.box_entry.insert('end', '\n'.join(cursor_selection) + '\n')
         
         self.get_input()
-        self.mainpage.label_selected_chemicals.config(text='Chemicals (' + str(len(variables.selected_chemicals)) + ')')
+        self.mainpage.label_selected_chemicals.config(text='Chemicals (' + str(len(self.vars.selected_chemicals)) + ')')
 
-        logging.info(f'Following chemicals added: {variables.selected_chemicals}')
+        logging.info(f'Following chemicals added: {self.vars.selected_chemicals}')
+
+    def update_variables(self):
+        self.vars.filename = self.mainpage.filename.get()
+        self.vars.name = self.formdetails.name.get()
+        self.vars.title = self.formdetails.title.get()
+        self.vars.year = self.formdetails.year.get()
+        self.vars.college = self.formdetails.college.get()
 
     def compile_form(self):
         input = self.mainpage.box_entry.get('1.0','end-1c')
@@ -97,23 +101,8 @@ class AutoCoshh(tk.Tk):
         self.mainpage.label_selected_chemicals.config(text = 'Chemicals (' + str(len(input.splitlines())) + ')')
 
         self.update_variables()
-        form_data = FormData(input)
-        form_data.cred.update({ 'name':variables.name,
-                                'title':variables.title,
-                                'date':variables.date,
-                                'year':variables.year,
-                                'college':variables.college,
-                                'filename':variables.filename })
-
+        form_data = FormData(input, self.vars)
         self.form = PDFForm(form_data, config)
-
-    def update_variables(self):
-        variables.filename = self.mainpage.filename.get()
-        variables.name = self.formdetails.name.get()
-        variables.title = self.formdetails.title.get()
-        variables.year = self.formdetails.year.get()
-        variables.college = self.formdetails.college.get()
-
 
 class MainPage(ttk.Frame):
     def __init__(self, parent, controller, vars):
@@ -282,5 +271,7 @@ class FormDetails(ttk.Frame):
         return_button = ttk.Button(frame_footer, text='Return', command=lambda: self.controller.show_frame(MainPage))
         return_button.pack(side = RIGHT)
 
+
+font = Font()
 app = AutoCoshh()
 app.mainloop()
