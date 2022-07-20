@@ -18,20 +18,14 @@ As a Chemistry undergraduate at Oxford, time is at a premium. AutoCOSHH is a Pyt
 <h3>MACOS INSTALLATION</h3>
 <ol> 
     <li>Install Python 3 (preferably an Anaconda distribution)</li>
-    Oh look, it's some [Apache config](http://pygments.org/docs/lexers/#lexers-for-non-source-code-file-types):
-
-    ```apache
-    <Directory /foo/bar>
-      Order allow,deny
-      Deny from all
-    </Directory>
-    ```
-
     <li>Clone repository to local directory</li>
     <li>Create and activate a conda virtual environment with the required libraries</li>
     <li>Install [MacTeX](https://tug.org/mactex/) </li>
     <li>Install the `latexmkrc` package using TeX Live Utility</li>
 </ol>
+
+* hello
+* hella agian
 
 ```
 mkdir autocoshh && cd autocoshh
