@@ -21,9 +21,12 @@ Given a list of chemicals and their respective hazard codes, AutoCOSHH performs 
 <ol> 
     <li>Clone repository to local directory: `git clone url /path/to/directory` </li>
     
-    <li>Navigate to local directory: `cd /path/to/directory`</li>
+    <li>Navigate to local directory: `cd /path/to/directory` </li>
+    
     <li>Create and activate conda virtual environment: `conda create --name autocoshh && conda activate autocoshh`</li>
+
     <li>Install required packages: `conda install requirements.txt`</li>
+
     <li>Install LaTeX: [url]</li>
     <li>Install `latexmkrc` using TeXLive Utility</li>
     <li>Run AutoCOSHH: `python interface.py`</li>
