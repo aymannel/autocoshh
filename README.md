@@ -5,24 +5,20 @@ As a Chemistry undergraduate at Oxford, time is at a premium. AutoCOSHH is a Pyt
 
 </br></br>
 <h3>FEATURES</h3>
-<ul> 
-    <li>Generate hundred-page long COSHH forms in seconds</li>
-    <li>Specify mass, concentration, volume and other details in brackets</li>
-    <li>Automatates 'Specific Safety or Risk Implication' section</li>
-    <li>Large number of commonly used solvents and chemicals already specified in `reference.csv` </li>
-    <li>Easily add missing chemicals and their respective hazard codes to `reference.csv`</li>
-    <li>Randomise display order of chemicals</li>
-</ul>
+* Generate hundred-page long COSHH forms in seconds
+* Specify mass, concentration, volume and other details in brackets
+* Automatates 'Specific Safety or Risk Implication' section
+* Large number of commonly used solvents and chemicals already specified
+* Easily add missing chemicals and their respective hazard codes to `reference.csv`
+* Randomise display order of chemicals
 
 </br>
 <h3>MACOS INSTALLATION</h3>
-<ol> 
-    <li>Install Python 3 (preferably an Anaconda distribution)</li>
-    <li>Clone repository to local directory</li>
-    <li>Create and activate a conda virtual environment with the required libraries</li>
-    <li>Install [MacTeX](https://tug.org/mactex/) </li>
-    <li>Install the `latexmkrc` package using TeX Live Utility</li>
-</ol>
+1. Install Python 3 (preferably an Anaconda distribution)
+2. Clone repository to local directory
+3. Create and activate a conda virtual environment with the required libraries
+4. Install [MacTeX](https://tug.org/mactex/)
+5. Install the `latexmkrc` package using TeX Live Utility
 
 * hello
 * hella agian `hello`
