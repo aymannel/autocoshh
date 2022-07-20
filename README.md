@@ -25,7 +25,7 @@ As a Chemistry undergraduate at Oxford, time is at a premium. AutoCOSHH is a Pyt
 </ol>
 
 * hello
-* hella agian
+* hella agian `hello`
 
 ```
 mkdir autocoshh && cd autocoshh
