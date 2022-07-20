@@ -18,6 +18,11 @@ As a Chemistry undergraduate at Oxford, time is at a premium. AutoCOSHH is a Pyt
 <h3>MACOS INSTALLATION</h3>
 <ol> 
     <li>Install Python 3 (preferably an Anaconda distribution)</li>
+    ```
+    mkdir autocoshh && cd autocoshh
+    git clone https://github.com/aymannel/autocoshh.git
+    ```
+
     <li>Clone repository to local directory</li>
     <li>Create and activate a conda virtual environment with the required libraries</li>
     <li>Install [MacTeX](https://tug.org/mactex/) </li>
