@@ -20,6 +20,7 @@ Given a list of chemicals and their respective hazard codes, AutoCOSHH performs 
 <h3>MACOS INSTALLATION</h3>
 <ol> 
     <li>Clone repository to local directory: `git clone url /path/to/directory` </li>
+    
     <li>Navigate to local directory: `cd /path/to/directory`</li>
     <li>Create and activate conda virtual environment: `conda create --name autocoshh && conda activate autocoshh`</li>
     <li>Install required packages: `conda install requirements.txt`</li>
