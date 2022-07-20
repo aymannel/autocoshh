@@ -1,8 +1,7 @@
 <h1 align = "center">AutoCOSHH</h1>
 
 <h3>DESCRIPTION</h3>
-As a Chemistry undergraduate at Oxford, time is at a premium. AutoCOSHH is a Python application that attempts to eliminate the menial work involved in manually generating COSHH forms for labs. Given a list of chemicals and their respective hazard codes, AutoCOSHH performs the logic that bridges the gap between a given hazard code and its associated hazards, exposure routes and control measures. The predefined relationships are stored in the local SQL databse `autocoshh.db`. The `reference.csv` file specifies the known chemicals and their respective hazard codes.
-The `latexmkrc` module is then used to generate the COSHH form in the required format.
+As a Chemistry undergraduate at Oxford, time is at a premium. AutoCOSHH is a Python application that attempts to eliminate the menial work involved in manually generating COSHH forms. Given a list of chemicals and their respective hazard codes stored in `reference.csv`, AutoCOSHH performs the logic that bridges the gap between a given hazard code and its associated hazards, exposure routes and control measures. These relationships are defined in a local SQL database. The latexmk package is then used to compile a clean-looking COSHH form in the required format (see images below).
 
 </br>
 <h3>FEATURES</h3>
@@ -18,14 +17,19 @@ The `latexmkrc` module is then used to generate the COSHH form in the required f
 </br>
 <h3>MACOS INSTALLATION</h3>
 <ol> 
-    <li>Clone repository to local directory: `git clone url /path/to/directory`</li>
-    <li>Navigate to local directory: `cd /path/to/directory`</li>
-    <li>Create and activate conda virtual environment: `conda create --name autocoshh && conda activate autocoshh`</li>
-    <li>Install required packages: `conda install requirements.txt`</li>
-    <li>Install LaTeX: [url]</li>
-    <li>Install `latexmkrc` using TeXLive Utility</li>
-    <li>Run AutoCOSHH: `python interface.py`</li>
+    <li>Install Python 3 (preferably an Anaconda distribution)</li>
+    <li>Clone repository to local directory</li>
+    <li>Create and activate a conda virtual environment with the required libraries</li>
+    <li>Install [MacTeX](https://tug.org/mactex/)</li>
+    <li>Install the `latexmkrc` package using TeX Live Utility</li>
 </ol>
+
+```
+git clone https://github.com/aymannel/autocoshh.git
+conda create --name autocoshh --file requirements.txt
+conda activate autocoshh
+python interface.py
+```
 
 </br>
 <h3>IMAGES</h3>
