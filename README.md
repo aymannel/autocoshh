@@ -5,6 +5,7 @@ As a Chemistry undergraduate at Oxford, time is at a premium. AutoCOSHH is a Pyt
 
 </br></br>
 <h3>FEATURES</h3>
+
 * Generate hundred-page long COSHH forms in seconds
 * Specify mass, concentration, volume and other details in brackets
 * Automatates 'Specific Safety or Risk Implication' section
@@ -14,6 +15,7 @@ As a Chemistry undergraduate at Oxford, time is at a premium. AutoCOSHH is a Pyt
 
 </br>
 <h3>MACOS INSTALLATION</h3>
+
 1. Install Python 3 (preferably an Anaconda distribution)
 2. Clone repository to local directory
 3. Create and activate a conda virtual environment with the required libraries
