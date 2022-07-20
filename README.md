@@ -18,16 +18,14 @@ As a Chemistry undergraduate at Oxford, time is at a premium. AutoCOSHH is a Pyt
 
 1. Install Python 3 (preferably an Anaconda distribution)
 2. Clone repository to local directory
+`git clone https://github.com/aymannel/autocoshh.git`
 3. Create and activate a conda virtual environment with the required libraries
 4. Install [MacTeX](https://tug.org/mactex/)
 5. Install the `latexmkrc` package using TeX Live Utility
 
-* hello
-* hella agian `hello`
-
 ```
 mkdir autocoshh && cd autocoshh
-git clone https://github.com/aymannel/autocoshh.git
+
 
 conda create --name autocoshh --file requirements.txt
 conda activate autocoshh
