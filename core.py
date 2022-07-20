@@ -15,17 +15,16 @@ end = '\033[0m'
 chemcsv = pd.read_csv('reference.csv')
 
 class FormData:
-    """process COSHH form corresponding to list of chemicals in inout"""
-
-    def __init__(self, input):
+    def __init__(self, data, selected_chemicals):
         self.conn = sqlite3.connect('autocoshh.db')
+
+        self.input = selected_chemicals
+        self.cred = data
 
         self.coshh_data = list()
         self.chemicals = [val.lower() for val in list(chemcsv.columns)]
-
-        self.cred = {'filename':'', 'title':'', 'name':'', 'college':'', 'year':'', 'date':''}
-
-        self.parse_input(input)
+        
+        self.parse_input()
         self.check_chem()
 
         self.get_hazcodes()
@@ -46,8 +45,8 @@ class FormData:
             print(', '.join([green + exposure + end if chemical[4][exposure] == True else exposure for exposure in chemical[4]]))
             print(', '.join([green + control + end if chemical[5][control] == True else control for control in chemical[5]]), '\n')
 
-    def parse_input(self, input):
-        for idx, val in enumerate(input.splitlines()):
+    def parse_input(self):
+        for idx, val in enumerate(self.input):
             self.coshh_data.append(['', '', '', '', '', ''])
             try:
                 amount = val[val.index('(') + 1:val.index(')')]
@@ -184,8 +183,6 @@ class FormData:
             self.specific_risk[3] = ('$\\square$ & \\\\\hline')
 
 class PDFForm:
-    """parse COSHH form data, assemble tex file and process COSHH Form as PDF file"""
-
     def __init__(self, FormData, config):
         self.pdfform = [entry[0:5] for entry in FormData.coshh_data]
         self.form_data = FormData.coshh_data
@@ -196,7 +193,7 @@ class PDFForm:
         self.format_exposures()
         self.format_controls()
         self.format_data()
-        self.create_PDF(FormData)
+        self.create_pdf(FormData)
 
     def format_hazards(self):
         for idx, entry in enumerate(self.form_data):
@@ -232,7 +229,7 @@ class PDFForm:
         for entry in self.pdfform:
             self.coshh_str += f'{entry[0]} & {entry[1]} & \n{entry[2]} & \n{entry[3]} & \n{entry[4]} \\\\\hline \n\n'
 
-    def create_PDF(self, FormData):
+    def create_pdf(self, FormData):
         tex_path = f'{self.cred["filename"]}.tex'
         pdf_path = f'{self.cred["filename"]}.pdf'
         copyfile('template.tex', 'forms/' + tex_path)
@@ -253,136 +250,3 @@ class PDFForm:
                 print (line, end='')
 
         os.system(f'cd forms && latexmk -pdf "{tex_path}" && latexmk -c && open "{pdf_path}"')
-
-
-class CSVForm:
-    def __init__(self):
-        print('CSV Form')
-
-input1 = """1,3-Dibromopropane
-1,4-Dichlorobenzene
-1-Octanol
-2,6-Dimethyl-2,4,6-Octatriene
-2-Benzylpyridine
-2-Hydroxycinnamicpyridine
-2-Hydroxypyridine
-2-Methyltetrahydrofuran
-2-Nitrobenzaldehyde
-2-Propanol
-2-Pyridone
-2E,4E-Hexa-2,4-dien-1-ol
-3-Hydroxycinnamic
-3-Methyl-2-butanone
-3-Methyl-2-buten-1-ol
-3-Methyl-3-buten-1-ol
-3-Nitroacetophenone
-3-Nitrobenzaldehyde
-4-Bromophenylhydrazine Hydrochloride
-4-Cyanophenylhydrazine Hydrochloride
-4-Hydroxycinnamic
-4-Methoxybenzaldehyde
-4-Methoxyphenylhydrazine Hydrochloride
-4-Nitroaniline
-4-Nitrobenzaldehyde
-5-Nitro-2-furaldehyde
-Acetone
-Acetonitrile
-Aminoguanidine Hydrochloride
-Ammonia
-Ammonia Borane
-Ammonium Chloride
-Ammonium Sulphate
-Bacteriological Agar
-Bacto Tryptone
-Bacto Yeast Extract
-Barium Nitrate
-Barium Sulphate
-Benzaldehyde
-Benzil
-Benzoin
-Benzyl Alcohol
-Bromobenzene
-Caesium Chloride
-Caesium Tetraphenylborate
-Calcium Chloride
-Calcium Fluoride
-Chlorine
-Chloroform
-Chloroplatinic Acid
-Cinnamic
-Cobalt
-Cobalt Chloride Hexahydrate
-Copper Nitrate
-Cyclohexane
-Cyclohexane.1
-DCM
-DMSO
-Deuterated Chloroform
-Deuterium Oxide
-Diethyl Adipate
-Diethyl Ether
-Diphenylmethane
-E. Coli K12
-EDTA
-Ethane-1,2-diol
-Ethanoic Acid
-Ethanol
-Ethyl Acetate
-Ethyl Acetoacetate
-Ethylene Glycol
-Fluorenone
-Glacial Acetic Acid
-HCl
-Hex-1-ene
-Hydrogen
-Hydrogen Peroxide
-Iodine
-Iodine Monochloride
-Iodine Trichloride
-Iron III Nitrate
-Lead Acetate
-Lithium Iodide
-Lithium Perchlorate
-Lycopene
-Magnesium
-Magnesium Sulphate
-Mercury Chloride
-Methanol
-Nitric Acid
-Petroleum Ether
-Petroleum ether
-Platinum
-Potassium Chloride
-Potassium Manganate
-Ruthenium Chloride
-Silica Gel
-Silver
-Silver Chloride
-Silver Nitrate
-Sodium
-Sodium Bicarbonate
-Sodium Borohydride
-Sodium Chloride
-Sodium Hydroxide
-Sodium Iodide
-Sodium Salicylate
-Sodium Sulphate
-Sodium Sulphite
-Sodium Tetraphenylborate
-Sodium Thiosulphate
-Styrene
-Sulphuric Acid
-THF
-Tartaric Acid
-Tetrahydropyran
-Tetramethylsilane
-Tin
-Toluene
-p-Toluenesulfonic Acid Monohydrate"""
-
-"""
-config = {'hazcode':True, 'checkboxes':True}
-AymanData = FormData(input1)
-AymanData.cred.update({'name':'Ayman', 'title':'C118', 'year':'Second', 'college':'St. John\'s', 'filename':'some'})
-AymanPDF = PDFForm(AymanData, config)
-"""
