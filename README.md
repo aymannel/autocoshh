@@ -11,7 +11,7 @@ Given a list of chemicals and their respective hazard codes, AutoCOSHH performs 
     <li>Generate hundred-page long COSHH forms in seconds</li>
     <li>Specify mass, concentration, volume and other details in brackets</li>
     <li>Automatates 'Specific Safety or Risk Implication' section</li>
-    <li>Large number of commonly used solvents and chemicals already specified in `reference.csv`</li>
+    <li>Large number of commonly used solvents and chemicals already specified in `reference.csv` </li>
     <li>Easily add missing chemicals and their respective hazard codes to `reference.csv`</li>
     <li>Randomise display order of chemicals</li>
 </ul>
@@ -19,7 +19,7 @@ Given a list of chemicals and their respective hazard codes, AutoCOSHH performs 
 </br>
 <h3>MACOS INSTALLATION</h3>
 <ol> 
-    <li>Clone repository to local directory: ```git clone url /path/to/directory```</li>
+    <li>Clone repository to local directory: `git clone url /path/to/directory` </li>
     <li>Navigate to local directory: `cd /path/to/directory`</li>
     <li>Create and activate conda virtual environment: `conda create --name autocoshh && conda activate autocoshh`</li>
     <li>Install required packages: `conda install requirements.txt`</li>
