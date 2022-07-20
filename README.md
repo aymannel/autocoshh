@@ -1,9 +1,7 @@
 <h1 align = "center">AutoCOSHH</h1>
 
 <h3>DESCRIPTION</h3>
-As a Chemistry undergraduate at Oxford, time is at a premium. AutoCOSHH attempts to eliminate the menial work involved in manually generating COSHH forms for labs.
-
-Given a list of chemicals and their respective hazard codes, AutoCOSHH performs all of the menial work involved in generating a COSHH form. The built-in reference sheet specifies many of the most commonly used solvents and chemicals. The `latexmkrc` module is used to generate the COSHH form in the required format.
+As a Chemistry undergraduate at Oxford, time is at a premium. AutoCOSHH is a Python application that attempts to eliminate the menial work involved in manually generating COSHH forms for labs. Given a list of chemicals and their respective hazard codes, AutoCOSHH performs the logic that bridges the gap between a given hazard code and its associated hazards, exposure routes and control measures. The predefined relationships are stored in the local SQL databse `autocoshh.db`. The `reference.csv` file specifies the known chemicals and their respective hazard codes. The `latexmkrc` module is then used to generate the COSHH form in the required format.
 
 </br>
 <h3>FEATURES</h3>
