@@ -18,9 +18,13 @@ As a Chemistry undergraduate at Oxford, time is at a premium. AutoCOSHH is a Pyt
 <h3>MACOS INSTALLATION</h3>
 <ol> 
     <li>Install Python 3 (preferably an Anaconda distribution)</li>
-    ```
-    mkdir autocoshh && cd autocoshh
-    git clone https://github.com/aymannel/autocoshh.git
+    Oh look, it's some [Apache config](http://pygments.org/docs/lexers/#lexers-for-non-source-code-file-types):
+
+    ```apache
+    <Directory /foo/bar>
+      Order allow,deny
+      Deny from all
+    </Directory>
     ```
 
     <li>Clone repository to local directory</li>
