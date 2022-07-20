@@ -25,9 +25,12 @@ As a Chemistry undergraduate at Oxford, time is at a premium. AutoCOSHH is a Pyt
 </ol>
 
 ```
+mkdir autocoshh && cd autocoshh
 git clone https://github.com/aymannel/autocoshh.git
+
 conda create --name autocoshh --file requirements.txt
 conda activate autocoshh
+
 python interface.py
 ```
 
