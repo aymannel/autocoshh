@@ -20,7 +20,7 @@ As a Chemistry undergraduate at Oxford, time is at a premium. AutoCOSHH is a Pyt
     <li>Install Python 3 (preferably an Anaconda distribution)</li>
     <li>Clone repository to local directory</li>
     <li>Create and activate a conda virtual environment with the required libraries</li>
-    <li>Install [MacTeX](https://tug.org/mactex/)</li>
+    <li>Install [MacTeX](https://tug.org/mactex/) </li>
     <li>Install the `latexmkrc` package using TeX Live Utility</li>
 </ol>
 
