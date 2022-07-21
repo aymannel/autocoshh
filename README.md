@@ -29,5 +29,3 @@ AutoCOSHH is a Python application that attempts to eliminate the menial work inv
 
 ![projectimage](https://github.com/aymannel/autocoshh/blob/master/img/autocoshh.png?raw=true)
 ![projectimage](https://github.com/aymannel/autocoshh/blob/master/img/form.png?raw=true)
-
-<hr>
