@@ -11,8 +11,6 @@ from tkinter import ttk
 #logging options
 logging.basicConfig(level=logging.INFO, format='(%(levelname)-s) %(asctime)s %(message)s', datefmt='%d-%m %H:%M:%S')
 
-padx = 5
-pady = 2
 
 class Font():
     title = ('Verdana', 25, 'bold')
@@ -23,16 +21,8 @@ class Font():
 
 
 class Variables():
-    filename = None
-    name = None
-    college = None
-    title = None
-    year = None
-    date = None
-
-    include_empty = None
-    show_hazard_codes = None
-    radiovar_formtype = None
+    padx = 5
+    pady = 2
 
 
 class AutoCoshh(tk.Tk):
@@ -40,7 +30,6 @@ class AutoCoshh(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs)
         tk.Tk.wm_title(self, 'AutoCOSHH v4')
 
-        self.chemical_reference = pd.read_csv('reference.csv')
 
         #instantiate parent container
         parent_container = ttk.Frame(self, padding='6 3 6 6')
@@ -48,7 +37,7 @@ class AutoCoshh(tk.Tk):
         parent_container.rowconfigure(0, weight=1)
         parent_container.columnconfigure(0, weight=1)
 
-        #update form details variables
+        #set form details variables
         Variables.filename = tk.StringVar(value='New Document')
         Variables.name = tk.StringVar()
         Variables.college = tk.StringVar()
@@ -56,17 +45,17 @@ class AutoCoshh(tk.Tk):
         Variables.year = tk.StringVar()        
         Variables.date = tk.StringVar()
 
-        #update options variables
+        #set options variables
         Variables.show_hazard_codes = tk.IntVar(value=True)
         Variables.include_empty = tk.IntVar(value=True)
-        Variables.radiovar_formtype = tk.IntVar()
+        Variables.radiovar_form = tk.IntVar()
         Variables.radiovar_scheme = tk.IntVar()
 
-        #instantiate tk frame objects (navigable pages)
+        #instantiate and configure ttk.Frame objects
         self.mainpage = MainPage(parent_container, self)
-        self.formdetails = FormDetails(parent_container, self)
-        
         self.mainpage.grid(row=0, column=0, sticky=NSEW)
+        
+        self.formdetails = FormDetails(parent_container, self)
         self.formdetails.grid(row=0, column=0, sticky=NSEW)
 
         self.frames = { MainPage: self.mainpage, FormDetails: self.formdetails }
@@ -131,7 +120,7 @@ class MainPage(ttk.Frame):
 
         #instantiate options frame
         self.label_options = ttk.Label(self, text='Options', font = Font.subtitle) #options label nested in main frame
-        self.label_options.grid(column=1, columnspan=2, row=2, padx=padx, sticky=W)
+        self.label_options.grid(column=1, columnspan=2, row=2, padx=Variables.padx, sticky=W)
 
         self.frame_options = ttk.Frame(self) #frame contains options checkboxes, radiobuttons, etc
         self.frame_options.grid(column=1, row=3, columnspan=4, pady=10, sticky=EW)
@@ -142,10 +131,10 @@ class MainPage(ttk.Frame):
         self.checkbox_include_empty = ttk.Checkbutton(self.frame_options, text='Include Empty Checkboxes', variable=Variables.include_empty)
         self.checkbox_include_empty.pack(side = LEFT, padx=10)
 
-        self.radiobutton_pdf = ttk.Radiobutton(self.frame_options, text='PDF', variable=Variables.radiovar_formtype, value=0)
+        self.radiobutton_pdf = ttk.Radiobutton(self.frame_options, text='PDF', variable=Variables.radiovar_form, value=0)
         self.radiobutton_pdf.pack(side = LEFT, padx=10)
 
-        self.radiobutton_csv = ttk.Radiobutton(self.frame_options, text='CSV', variable=Variables.radiovar_formtype, value=1)
+        self.radiobutton_csv = ttk.Radiobutton(self.frame_options, text='CSV', variable=Variables.radiovar_form, value=1)
         self.radiobutton_csv.pack(side = LEFT, padx=10)
 
         self.frame_filename = ttk.Frame(self.frame_options) #frame contains filename input box
@@ -162,25 +151,25 @@ class MainPage(ttk.Frame):
 
         #entry box section
         self.label_selected_chemicals = ttk.Label(self, text='Chemicals (0)', font = Font.subtitle)
-        self.label_selected_chemicals.grid(column=1, row=5, padx=padx, pady=pady, sticky=W)
+        self.label_selected_chemicals.grid(column=1, row=5, padx=Variables.padx, pady=Variables.pady, sticky=W)
 
         self.box_entry = tk.Text(self, height=1, width=40, font = Font.textbox)
-        self.box_entry.grid(column=1, row=6, columnspan=2, padx=padx, pady=pady, stick=(E, W, N, S))
+        self.box_entry.grid(column=1, row=6, columnspan=2, padx=Variables.padx, pady=Variables.pady, stick=(E, W, N, S))
         self.box_entry.focus()
 
         #selection box section
         selection_box_title = 'Recognised Chemicals (' + str(len(controller.chemical_reference.columns)) +')'
         self.label_selection_title = ttk.Label(self, text=selection_box_title, font = Font.subtitle)
-        self.label_selection_title.grid(column=3, row=5, columnspan=2, padx=padx, pady=pady, sticky=EW)
+        self.label_selection_title.grid(column=3, row=5, columnspan=2, padx=Variables.padx, pady=Variables.pady, sticky=EW)
 
         list_chemicals = list(controller.chemical_reference.columns.sort_values())
         self.box_selection = Listbox(self, selectmode = MULTIPLE, height = 18, width = 80, font = Font.textbox)
         [self.box_selection.insert(list_chemicals.index(chem), chem) for chem in list_chemicals]
-        self.box_selection.grid(column=3, row=6, columnspan=2, padx=padx, pady=pady)
+        self.box_selection.grid(column=3, row=6, columnspan=2, padx=Variables.padx, pady=Variables.pady)
 
         #footer section
         self.frame_footer = ttk.Frame(self)
-        self.frame_footer.grid(column=1, row=7, columnspan=4, padx=padx, pady=pady, sticky=EW)
+        self.frame_footer.grid(column=1, row=7, columnspan=4, padx=Variables.padx, pady=Variables.pady, sticky=EW)
 
         self.button_open_database = ttk.Button(self.frame_footer, text='Open Database', command=lambda: os.system('open reference.csv'))
         self.button_open_database.pack(side = LEFT)
@@ -215,7 +204,7 @@ class FormDetails(ttk.Frame):
 
         #instantiate form details title and frame
         label_form_details = ttk.Label(self, text='Form Details', font = Font.subtitle)
-        label_form_details.grid(column=1, row=2, padx=padx, sticky=W)
+        label_form_details.grid(column=1, row=2, padx=Variables.padx, sticky=W)
 
         frame_form_details = ttk.Frame(self)
         frame_form_details.grid(column=1, row=3, columnspan=2, rowspan=3, padx=10, sticky=E)
@@ -289,7 +278,7 @@ class FormDetails(ttk.Frame):
 
         #instantiate footer frame
         frame_footer = ttk.Frame(self)
-        frame_footer.grid(column=1, row=7, columnspan=4, padx=padx, pady=pady, sticky=EW)
+        frame_footer.grid(column=1, row=7, columnspan=4, padx=Variables.padx, pady=Variables.pady, sticky=EW)
 
         return_button = ttk.Button(frame_footer, text='Return', command=lambda: self.controller.show_frame(MainPage))
         return_button.pack(side = RIGHT)
