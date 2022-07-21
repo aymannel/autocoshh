@@ -28,4 +28,4 @@ AutoCOSHH is a Python application that attempts to eliminate the menial work inv
 <h3>IMAGES</h3>
 
 ![projectimage](https://github.com/aymannel/autocoshh/blob/master/img/autocoshh.png?raw=true)
-![projectimage](https://github.com/aymannel/autocoshh/blob/master/img/form2.png?raw=true)
+![projectimage](https://github.com/aymannel/autocoshh/blob/master/img/form3.png?raw=true)
