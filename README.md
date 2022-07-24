@@ -1,5 +1,7 @@
 # AutoCOSHH
 
+![projectimage](img/autocoshh.png?raw=true)
+
 ## DESCRIPTION
 AutoCOSHH is a Python application that attempts to eliminate the menial work involved in manually generating COSHH forms. Given a list of chemicals and their respective hazard codes, AutoCOSHH performs the logic that relates a given hazard code to its associated hazards, exposure routes and control measures. These relationships are defined in a local SQL database. The latexmk package is then used to compile a clean COSHH form in the required format (see images below).
 
@@ -33,7 +35,5 @@ Writing AutoCOSHH has been a learning experience for me, allowing me to create a
 * Each COSHH form represents COSHHForm() object that is manipulated by main AutoCOSHH() object
 
 
-## IMAGES
-
-![projectimage](img/autocoshh.png?raw=true)
+## EXAMPLE COSHH FORM
 ![projectimage](img/form.png?raw=true)
