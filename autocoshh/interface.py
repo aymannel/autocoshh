@@ -6,7 +6,7 @@ import pandas as pd
 import tkinter as tk
 from tkinter import *
 from tkinter import ttk
-from core import COSHHForm, PDFForm
+from core import COSHHForm
 
 #logging options
 logging.basicConfig(level=logging.INFO, format='(%(levelname)-s) %(asctime)s %(message)s', datefmt='%d-%m %H:%M:%S')
@@ -37,7 +37,7 @@ class AutoCoshh(tk.Tk):
         self.reference = pd.read_csv('reference.csv')
 
         #instantiate COSHHForm and PDFForm objects
-        self.pdfform = PDFForm()
+        self.coshhform = COSHHForm()
 
         #instantiate ttk parent container
         parent_container = ttk.Frame(self, padding='6 3 6 6')
@@ -46,17 +46,17 @@ class AutoCoshh(tk.Tk):
         parent_container.columnconfigure(0, weight=1)
 
         #instantiate Tk Var objects as attributes of pdfform
-        self.pdfform.filename = tk.StringVar(value='New Document')
-        self.pdfform.name = tk.StringVar()
-        self.pdfform.college = tk.StringVar()
-        self.pdfform.title = tk.StringVar()
-        self.pdfform.year = tk.StringVar()        
-        self.pdfform.date = tk.StringVar()
+        self.coshhform.filename = tk.StringVar(value='New Document')
+        self.coshhform.name = tk.StringVar()
+        self.coshhform.college = tk.StringVar()
+        self.coshhform.title = tk.StringVar()
+        self.coshhform.year = tk.StringVar()        
+        self.coshhform.date = tk.StringVar()
 
-        self.pdfform.show_hazard_codes = tk.IntVar(value=True)
-        self.pdfform.include_empty = tk.IntVar(value=True)
-        self.pdfform.radiovar_form = tk.IntVar()
-        self.pdfform.radiovar_scheme = tk.IntVar()
+        self.coshhform.show_hazard_codes = tk.IntVar(value=True)
+        self.coshhform.include_empty = tk.IntVar(value=True)
+        self.coshhform.radiovar_form = tk.IntVar()
+        self.coshhform.radiovar_scheme = tk.IntVar()
 
         #instantiate and configure ttk.Frame objects
         self.mainpage = MainPage(parent_container, self)
@@ -75,7 +75,7 @@ class AutoCoshh(tk.Tk):
         logging.info(f'{controller.__name__} object raised')
 
     def get_input(self):
-        return self.mainpage.box_entry.get('1.0', 'end-1c').splitlines()[::-1]
+        return self.mainpage.box_entry.get('1.0', 'end-1c').splitlines()
 
     def rand_order(self):
         chemicals = self.get_input()
@@ -96,10 +96,14 @@ class AutoCoshh(tk.Tk):
         logging.info(f'Following chemicals added: {self.get_input()}')
 
     def compile_form(self):
-        self.coshhform = COSHHForm(self.get_input())
+        self.coshhform.parse_input(self.get_input())
+        self.coshhform.get_coshh_data()
+        self.coshhform.format_pdf()
+        self.coshhform.get_specific_risk()
+        self.coshhform.create_pdf()
+        
         self.coshhform.coshh_df.to_csv('coshhdata.csv')
-
-        #self.pdfform.compile(self.coshhform.coshh_df, self.coshhform.specificrisk)
+        self.coshhform.formatted_df.to_csv('formatted.csv')
 
         self.mainpage.label_chemicals.config(text='Chemicals (' + str(len(self.get_input())) + ')')
 
@@ -122,16 +126,16 @@ class MainPage(ttk.Frame):
         self.frame_options = ttk.Frame(self) #frame contains options checkboxes, radiobuttons, etc
         self.frame_options.grid(column=1, row=3, columnspan=4, pady=10, sticky=EW)
 
-        self.checkbox_show_hazard_codes = ttk.Checkbutton(self.frame_options, text='Include Hazard Codes', variable=controller.pdfform.show_hazard_codes)
+        self.checkbox_show_hazard_codes = ttk.Checkbutton(self.frame_options, text='Include Hazard Codes', variable=controller.coshhform.show_hazard_codes)
         self.checkbox_show_hazard_codes.pack(side = LEFT, padx=10)
 
-        self.checkbox_include_empty = ttk.Checkbutton(self.frame_options, text='Include Empty Checkboxes', variable=controller.pdfform.include_empty)
+        self.checkbox_include_empty = ttk.Checkbutton(self.frame_options, text='Include Empty Checkboxes', variable=controller.coshhform.include_empty)
         self.checkbox_include_empty.pack(side = LEFT, padx=10)
 
-        self.radiobutton_pdf = ttk.Radiobutton(self.frame_options, text='PDF', variable=controller.pdfform.radiovar_form, value=0)
+        self.radiobutton_pdf = ttk.Radiobutton(self.frame_options, text='PDF', variable=controller.coshhform.radiovar_form, value=0)
         self.radiobutton_pdf.pack(side = LEFT, padx=10)
 
-        self.radiobutton_csv = ttk.Radiobutton(self.frame_options, text='CSV', variable=controller.pdfform.radiovar_form, value=1)
+        self.radiobutton_csv = ttk.Radiobutton(self.frame_options, text='CSV', variable=controller.coshhform.radiovar_form, value=1)
         self.radiobutton_csv.pack(side = LEFT, padx=10)
 
         self.frame_filename = ttk.Frame(self.frame_options) #frame contains filename input box
@@ -140,7 +144,7 @@ class MainPage(ttk.Frame):
         self.label_filename = ttk.Label(self.frame_filename, text='Document Name: ', font=Font.entry, foreground=Font.color_entry)
         self.label_filename.pack(side=LEFT, anchor=E, pady=2)
 
-        self.entry_filename = ttk.Entry(self.frame_filename, width=14, textvariable=controller.pdfform.filename)
+        self.entry_filename = ttk.Entry(self.frame_filename, width=14, textvariable=controller.coshhform.filename)
         self.entry_filename.pack(side=RIGHT)
 
         self.button_details = ttk.Button(self.frame_options, text='Edit Form Details', command=lambda: controller.show_frame(FormDetailsPage))
@@ -234,23 +238,23 @@ class FormDetailsPage(ttk.Frame):
         frame_entries.pack(side=LEFT)
         
         #instantiate name entry
-        self.entry_name = ttk.Entry(frame_entries, width=16, textvariable=controller.pdfform.name)
+        self.entry_name = ttk.Entry(frame_entries, width=16, textvariable=controller.coshhform.name)
         self.entry_name.pack(side=TOP)
         
         #instantiate title entry
-        self.entry_title = ttk.Entry(frame_entries, width=16, textvariable=controller.pdfform.title)
+        self.entry_title = ttk.Entry(frame_entries, width=16, textvariable=controller.coshhform.title)
         self.entry_title.pack(side=TOP)
 
         #instantiate date entry
-        self.entry_date = ttk.Entry(frame_entries, width=16, textvariable=controller.pdfform.date)
+        self.entry_date = ttk.Entry(frame_entries, width=16, textvariable=controller.coshhform.date)
         self.entry_date.pack(side=TOP)
         
         #instantiate college entry
-        self.entry_college = ttk.Entry(frame_entries, width=16, textvariable=controller.pdfform.college)
+        self.entry_college = ttk.Entry(frame_entries, width=16, textvariable=controller.coshhform.college)
         self.entry_college.pack(side=TOP)
         
         #instantiate year entry
-        self.entry_year = ttk.Entry(frame_entries, width=16, textvariable=controller.pdfform.year)
+        self.entry_year = ttk.Entry(frame_entries, width=16, textvariable=controller.coshhform.year)
         self.entry_year.pack(side=TOP)
 
 
@@ -261,13 +265,13 @@ class FormDetailsPage(ttk.Frame):
         frame_scheme.grid(column=3, row=3, columnspan=3, padx=10, sticky=W)
 
         schemesize = tk.IntVar()
-        smallscheme_radiobutton = ttk.Radiobutton(frame_scheme, text='Small', variable=controller.pdfform.radiovar_scheme, value = 0)
+        smallscheme_radiobutton = ttk.Radiobutton(frame_scheme, text='Small', variable=controller.coshhform.radiovar_scheme, value = 0)
         smallscheme_radiobutton.pack(side = LEFT, padx=10)
 
-        medcheme_radiobutton = ttk.Radiobutton(frame_scheme, text='Medium', variable=controller.pdfform.radiovar_scheme, value = 1)
+        medcheme_radiobutton = ttk.Radiobutton(frame_scheme, text='Medium', variable=controller.coshhform.radiovar_scheme, value = 1)
         medcheme_radiobutton.pack(side = LEFT, padx=10)
 
-        largescheme_radiobutton = ttk.Radiobutton(frame_scheme, text='Large', variable=controller.pdfform.radiovar_scheme, value = 2)
+        largescheme_radiobutton = ttk.Radiobutton(frame_scheme, text='Large', variable=controller.coshhform.radiovar_scheme, value = 2)
         largescheme_radiobutton.pack(side = LEFT, padx=10)
 
         #instantiate footer frame

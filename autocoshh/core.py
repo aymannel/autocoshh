@@ -17,19 +17,13 @@ end = '\033[0m'
 
 
 class COSHHForm:
-    def __init__(self, input):        
-        self.input = input
+    def __init__(self):        
         self.reference = pd.read_csv('reference.csv')
         self.reference_chemicals = [val.lower() for val in self.reference.columns]
         self.coshh_df = pd.DataFrame(columns=['chemical', 'amount', 'hazard code', 'hazard', 'exposure', 'control'])
-
-        self.parse_input()
-        self.get_coshh_data()
-        self.get_specific_risk()
-
         logging.info('COSHHForm object instantiated')
 
-    def parse_input(self):
+    def parse_input(self, input):
         unknown_chemicals = list()
 
         def extract_false(item):
@@ -45,7 +39,7 @@ class COSHHForm:
             else:
                 unknown_chemicals.append(chemical)
 
-        parsed_input = map(extract_false, self.input) #extract false
+        parsed_input = map(extract_false, input) #extract false
         parsed_input = list(filter(None, parsed_input)) #filter out None objects
         parsed_input = list(map(list, zip(*parsed_input))) #transpose parsed_input
         self.chemicals = parsed_input[0] #seperate chemicals and amounts
@@ -181,87 +175,37 @@ class COSHHForm:
         return self.specific_risk
 
     def format_pdf(self):
-        self.pdfform_hazard = list()
-        self.pdfform_exposure = list()
-        self.pdfform_control = list()
-
-        for idx, chemical in enumerate(self.chemicals):
-
-            #format hazards
-            if len(self.coshh_df[chemical]['hazard code']) == 0:
-                self.pdfform_hazard.append(self.coshh_df[chemical]['hazard'])
-            elif bool(self.show_hazard_codes.get()) == True:
-                #hazard_and_code = zip(self.coshh_df[chemical]['hazard code'], self.coshh_df[chemical]['hazard'])
-                #hazards = ['\\textbf{'+ hazcode +'} '+ hazard for hazcode, hazard in hazard_and_code]
-                self.pdfform_hazard.append(' \\newline '.join(hazards))
-            else:
-                self.pdfform_hazard.append(' \\newline '.join(self.coshh_df[chemical]['hazard']))
-
-            #format exposures
-            if bool(self.include_empty.get()) == True:
-                #exposures = ['$\\boxtimes$ ' + exposure if entry[4][exposure] == True else '$\\square$ ' + exposure for exposure in self.coshh_df[chemical]['exposure']]
-                self.pdfform_exposure.append(' \\newline '.join(exposures))
-            else:
-                #exposures = ['$\\boxtimes$ ' + exposure for exposure in entry[4] if entry[4][exposure] == True]
-                self.pdfform_exposure.append(' \\newline '.join(exposures))
-
-            #format controls
-            if bool(self.include_empty.get()) == True:
-                #controls = ['$\\boxtimes$ ' + control if entry[5][control] == True else '$\\square$ ' + control for control in entry[5]]
-                self.pdfform_control.append(' \\newline '.join(controls))
-            else:
-                #controls = ['$\\boxtimes$ ' + control for control in entry[5] if entry[5][control] == True]
-                self.pdfform_control.append(' \\newline '.join(controls))
-
-class PDFForm:
-    def __init__(self):
-        logging.info('PDFForm object instantiated')
-
-    def compile(self, coshhdata, specificrisk):
-        self.coshh_data = coshhdata #replace all instances of NaN with empty string .fillna(value=str())
-        self.specific_risk = specificrisk
-        self.pdfform = [entry[0:5] for entry in self.coshh_data]
-
-        self.format_hazards()
-        self.format_exposures()
-        self.format_controls()
-        self.format_data()
-        self.create_pdf()
-
-
-    def format_hazards(self):
-        for idx, entry in enumerate(self.coshh_data):
-            if len(entry[2]) == 0:
-                self.pdfform[idx][2] = entry[3]
-            elif bool(self.show_hazard_codes.get()) == True:
-                hazards = ['\\textbf{'+ hazcode +'} '+ hazard for hazcode, hazard in zip(entry[2], entry[3])]
-                self.pdfform[idx][2] = ' \\newline '.join(hazards)
-            else:
-                self.pdfform[idx][2] = ' \\newline '.join(entry[3])
-
-    def format_exposures(self):
-        for idx, entry in enumerate(self.coshh_data):
-            if bool(self.include_empty.get()) == True:
-                exposures = ['$\\boxtimes$ ' + exposure if entry[4][exposure] == True else '$\\square$ ' + exposure for exposure in entry[4]]
-                self.pdfform[idx][3] = ' \\newline '.join(exposures)
-            else:
-                exposures = ['$\\boxtimes$ ' + exposure for exposure in entry[4] if entry[4][exposure] == True]
-                self.pdfform[idx][3] = ' \\newline '.join(exposures)
-
-    def format_controls(self):
-        for idx, entry in enumerate(self.coshh_data):
-            if bool(self.include_empty.get()) == True:
-                controls = ['$\\boxtimes$ ' + control if entry[5][control] == True else '$\\square$ ' + control for control in entry[5]]
-                self.pdfform[idx][4] = ' \\newline '.join(controls)
-            else:
-                controls = ['$\\boxtimes$ ' + control for control in entry[5] if entry[5][control] == True]
-                self.pdfform[idx][4] = ' \\newline '.join(controls)
-
-    def format_data(self):
         self.coshh_str = ''
+        self.formatted_df = self.coshh_df.copy()
+        self.formatted_df.drop('hazard code', axis=1, inplace=True)
+        
+        for chemical in self.chemicals:
+            if len(self.coshh_df.loc[chemical]['hazard code']) == 0:
+                pass
+            elif bool(self.show_hazard_codes.get()) == True:
+                zip_hazard = zip(self.coshh_df.loc[chemical]['hazard code'], self.coshh_df.loc[chemical]['hazard'])
+                hazards = ['\\textbf{'+ hazard_code +'} '+ hazard for hazard_code, hazard in zip_hazard]
+                self.formatted_df.loc[chemical]['hazard'] = ' \\newline '.join(hazards)
+            else:
+                self.formatted_df.loc[chemical]['hazard'] = ' \\newline '.join(self.coshh_df.loc[chemical]['hazard'])
+        
+            exposures = self.coshh_df.loc[chemical]['exposure'].items()
+            if bool(self.include_empty.get()) == True:
+                exposures = ['$\\boxtimes$ ' + exposure if value == True else '$\\square$ ' + exposure for exposure, value in exposures]
+                self.formatted_df.loc[chemical]['exposure'] =  ' \\newline '.join(exposures)
+            else:
+                exposures = ['$\\boxtimes$ ' + exposure for exposure, value in exposures if value == True]
+                self.formatted_df.loc[chemical]['exposure'] =  ' \\newline '.join(exposures)
 
-        for entry in self.pdfform:
-            self.coshh_str += f'{entry[0]} & {entry[1]} & \n{entry[2]} & \n{entry[3]} & \n{entry[4]} \\\\\hline \n\n'
+            controls = self.coshh_df.loc[chemical]['control'].items()
+            if bool(self.include_empty.get()) == True:
+                controls = ['$\\boxtimes$ ' + control if value == True else '$\\square$ ' + control for control, value in controls]
+                self.formatted_df.loc[chemical]['control'] =  ' \\newline '.join(controls)
+            else:
+                controls = ['$\\boxtimes$ ' + control for control, value in controls if value == True]
+                self.formatted_df.loc[chemical]['control'] =  ' \\newline '.join(controls)
+        
+            self.coshh_str += f"{chemical} & {self.formatted_df.loc[chemical]['amount']} & {self.formatted_df.loc[chemical]['hazard']} & {self.formatted_df.loc[chemical]['exposure']} & {self.formatted_df.loc[chemical]['control']} \\\\\hline \n\n"
 
     def create_pdf(self):
         tex_path = f'{self.filename.get()}.tex'
@@ -282,107 +226,5 @@ class PDFForm:
                 line = line.replace('replace_gasrisk', self.specific_risk[2])
                 line = line.replace('replace_malodorrisk', self.specific_risk[3])
                 print (line, end='')
-                         'control': []*form_length }
-
-        for idx, chemical in enumerate(self.chemicals):
-            if len(self.coshh_df[chemical]['hazard code']) == 0:
-                self.pdfform
-
-        for idx, entry in enumerate(self.coshh_data):
-            if len(entry[2]) == 0:
-                self.pdfform[idx][2] = entry[3]
-            elif bool(self.show_hazard_codes.get()) == True:
-                hazards = ['\\textbf{'+ hazcode +'} '+ hazard for hazcode, hazard in zip(entry[2], entry[3])]
-                self.pdfform[idx][2] = ' \\newline '.join(hazards)
-            else:
-                self.pdfform[idx][2] = ' \\newline '.join(entry[3])
-
-    def format_exposures(self):
-        for idx, entry in enumerate(self.coshh_data):
-            if bool(self.include_empty.get()) == True:
-                exposures = ['$\\boxtimes$ ' + exposure if entry[4][exposure] == True else '$\\square$ ' + exposure for exposure in entry[4]]
-                self.pdfform[idx][3] = ' \\newline '.join(exposures)
-            else:
-                exposures = ['$\\boxtimes$ ' + exposure for exposure in entry[4] if entry[4][exposure] == True]
-                self.pdfform[idx][3] = ' \\newline '.join(exposures)
-
-    def format_controls(self):
-        for idx, entry in enumerate(self.coshh_data):
-            if bool(self.include_empty.get()) == True:
-                controls = ['$\\boxtimes$ ' + control if entry[5][control] == True else '$\\square$ ' + control for control in entry[5]]
-                self.pdfform[idx][4] = ' \\newline '.join(controls)
-            else:
-                controls = ['$\\boxtimes$ ' + control for control in entry[5] if entry[5][control] == True]
-                self.pdfform[idx][4] = ' \\newline '.join(controls)
-
-class PDFForm:
-    def __init__(self):
-        logging.info('PDFForm object instantiated')
-
-    def compile(self, coshhdata, specificrisk):
-        self.coshh_data = coshhdata #replace all instances of NaN with empty string .fillna(value=str())
-        self.specific_risk = specificrisk
-        self.pdfform = [entry[0:5] for entry in self.coshh_data]
-
-        self.format_hazards()
-        self.format_exposures()
-        self.format_controls()
-        self.format_data()
-        self.create_pdf()
-
-
-    def format_hazards(self):
-        for idx, entry in enumerate(self.coshh_data):
-            if len(entry[2]) == 0:
-                self.pdfform[idx][2] = entry[3]
-            elif bool(self.show_hazard_codes.get()) == True:
-                hazards = ['\\textbf{'+ hazcode +'} '+ hazard for hazcode, hazard in zip(entry[2], entry[3])]
-                self.pdfform[idx][2] = ' \\newline '.join(hazards)
-            else:
-                self.pdfform[idx][2] = ' \\newline '.join(entry[3])
-
-    def format_exposures(self):
-        for idx, entry in enumerate(self.coshh_data):
-            if bool(self.include_empty.get()) == True:
-                exposures = ['$\\boxtimes$ ' + exposure if entry[4][exposure] == True else '$\\square$ ' + exposure for exposure in entry[4]]
-                self.pdfform[idx][3] = ' \\newline '.join(exposures)
-            else:
-                exposures = ['$\\boxtimes$ ' + exposure for exposure in entry[4] if entry[4][exposure] == True]
-                self.pdfform[idx][3] = ' \\newline '.join(exposures)
-
-    def format_controls(self):
-        for idx, entry in enumerate(self.coshh_data):
-            if bool(self.include_empty.get()) == True:
-                controls = ['$\\boxtimes$ ' + control if entry[5][control] == True else '$\\square$ ' + control for control in entry[5]]
-                self.pdfform[idx][4] = ' \\newline '.join(controls)
-            else:
-                controls = ['$\\boxtimes$ ' + control for control in entry[5] if entry[5][control] == True]
-                self.pdfform[idx][4] = ' \\newline '.join(controls)
-
-    def format_data(self):
-        self.coshh_str = ''
-
-        for entry in self.pdfform:
-            self.coshh_str += f'{entry[0]} & {entry[1]} & \n{entry[2]} & \n{entry[3]} & \n{entry[4]} \\\\\hline \n\n'
-
-    def create_pdf(self):
-        tex_path = f'{self.filename.get()}.tex'
-        pdf_path = f'{self.filename.get()}.pdf'
-        copyfile('template.tex', 'forms/' + tex_path)
-
-        with fileinput.FileInput('forms/' + tex_path, inplace=True) as file:
-            for line in file:
-                line = line.replace('replace_title', self.title.get())
-                line = line.replace('replace_name', self.name.get())
-                line = line.replace('replace_college', self.college.get())
-                line = line.replace('replace_date', self.date.get())
-                line = line.replace('replace_year', self.year.get())
-
-                line = line.replace('replace_coshh', self.coshh_str)
-                line = line.replace('replace_firerisk', self.specific_risk[0])
-                line = line.replace('replace_thermrisk', self.specific_risk[1])
-                line = line.replace('replace_gasrisk', self.specific_risk[2])
-                line = line.replace('replace_malodorrisk', self.specific_risk[3])
-                print (line, end='')
-
+        
         os.system(f'cd forms && latexmk -pdf "{tex_path}" && latexmk -c && open "{pdf_path}"')
