@@ -30,9 +30,6 @@ class AutoCoshh(tk.Tk):
         tk.Tk.__init__(self, *args, **kwargs)
         tk.Tk.wm_title(self, 'AutoCOSHH v4')
         logging.info('AutoCOSHH object instantiated')
-
-        self.tk.call('source', 'azure.tcl')
-        self.tk.call('set_theme', 'dark')
         
         self.reference = pd.read_csv('reference.csv')
 
@@ -93,7 +90,7 @@ class AutoCoshh(tk.Tk):
         self.mainpage.box_entry.insert('end', '\n'.join(cursor_selection) + '\n')
         
         self.mainpage.label_chemicals.config(text='Chemicals (' + str(len(self.get_input())) + ')')
-        logging.info(f'Following chemicals added: {self.get_input()}')
+        logging.info(f'{len(self.get_input())} chemicals added')
 
     def compile_form(self):
         self.coshhform.parse_input(self.get_input())
@@ -102,9 +99,6 @@ class AutoCoshh(tk.Tk):
         self.coshhform.get_specific_risk()
         self.coshhform.create_pdf()
         
-        self.coshhform.coshh_df.to_csv('coshhdata.csv')
-        self.coshhform.formatted_df.to_csv('formatted.csv')
-
         self.mainpage.label_chemicals.config(text='Chemicals (' + str(len(self.get_input())) + ')')
 
 
