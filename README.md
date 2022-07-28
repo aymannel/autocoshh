@@ -29,3 +29,8 @@ AutoCOSHH is an application that attempts to eliminate the menial work involved 
 
 ## EXAMPLE COSHH FORM
 ![projectimage](img/form.png?raw=true)
+
+| hello | lol | nice |
+| ----- | --- | ---- |
+| som   | som | som  |
+| 1     | 2   | 3    |
