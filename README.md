@@ -1,9 +1,9 @@
 # AutoCOSHH
 
-![projectimage](img/autocoshh.png)
+![projectimage](autocoshh.png)
 
 ## DESCRIPTION
-AutoCOSHH is an application that attempts to eliminate the menial work involved in manually generating COSHH forms. Given a list of chemicals and their respective hazard codes, AutoCOSHH performs the logic that relates a given hazard code to its associated hazards, exposure routes and control measures. These relationships are defined in a local SQL database. The latexmk package is then used to compile a clean COSHH form in the required format (see images below).
+AutoCOSHH is an application that attempts to eliminate the menial work involved in manually generating COSHH forms. Given a list of chemicals and their respective hazard codes, AutoCOSHH performs the logic that relates a given hazard code to its associated hazards, exposure routes and control measures. These relationships are defined in a local SQL database. LaTeX and the latexmk package is then used to compile a clean COSHH form in the required format (see images below).
 
 
 ## FEATURES
@@ -28,4 +28,4 @@ AutoCOSHH is an application that attempts to eliminate the menial work involved 
 
 
 ## EXAMPLE COSHH FORM
-![projectimage](img/form.png)
+![projectimage](form.png)
