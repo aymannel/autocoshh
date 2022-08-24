@@ -1,0 +1,31 @@
+.container {
+    position: fixed;
+    top: 20%;
+    left: 28%;
+    margin-top: -65px;
+    margin-left: -100px;
+    border-radius: 7px;
+}
+
+#makepdf {
+    box-sizing: content-box;
+    width: 700px;
+    height: 150px;
+    padding: 30px;
+    border: 1px solid black;
+    font-style: sans-serif;
+    background-color: #f0f0f0;
+}
+
+#button {
+    background-color: #4caf50;
+    border-radius: 5px;
+    margin-left: 650px;
+    margin-bottom: 5px;
+    color: white;
+    }
+
+    h2 {
+        text-align: center;
+        color: #24650b;
+    }
